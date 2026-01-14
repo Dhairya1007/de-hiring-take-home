@@ -19,40 +19,35 @@ Please follow the [fork and pull request](https://docs.github.com/en/get-started
 
 You need to build a data pipeline that:
 
-1. Fetches data from [Wikipedia - Toronto](https://en.wikipedia.org/wiki/Toronto) and recursively follows all links and sublinks (and their sublinks, etc.)
+1. Fetches data from [Wikipedia - Toronto](https://en.wikipedia.org/wiki/Toronto) and follows links to a limited depth (2 levels max, i.e. starting URL + linked URLs + their linked URLs)
 2. Transforms and validates the data
 3. Loads it into a staging area
-4. Applies data quality checks
-5. Moves clean data to a final destination
-6. Includes monitoring and error handling
+4. Moves clean data to a final destination
+5. Includes basic error handling
 
 ## Requirements
 
 ### Part 1: Data Extraction
 
-- Create a script that fetches data from [Wikipedia - Toronto](https://en.wikipedia.org/wiki/Toronto) and recursively follows all links and sublinks (and their sublinks, etc.)
+- Create a script that fetches data from [Wikipedia - Toronto](https://en.wikipedia.org/wiki/Toronto) and follows links to a limited depth (2 levels)
 - Handle rate limiting and retries
-- Implement proper error handling
-- Consider depth limits and circular reference handling for link traversal
+- Implement basic error handling
+- Consider circular reference handling for link traversal
 
 ### Part 2: Data Transformation
 
 - Clean and transform the data (handle nulls, format dates, validate schemas)
-- Apply business rules/logic
-- Create a data quality report
 
 ### Part 3: Data Loading
 
 - Load data to a staging location (can be CSV, JSON, or a local database)
-- Implement idempotency (handle re-runs safely)
 - Create a final "production" table/view
 
-### Part 4: Monitoring & Documentation
+### Part 4: Documentation
 
-- Add logging throughout the pipeline
+- Add basic logging throughout the pipeline
 - Create a README with setup instructions
 - Document data schema and transformations
-- Include a simple monitoring/metrics output (success rate, record counts, etc.)
 
 ### Tech Stack (use what you're comfortable with)
 
@@ -73,24 +68,12 @@ Your pull request should include:
    - How to run the pipeline
    - Data schema documentation
    - Assumptions and design decisions
-4. **Sample output/data** demonstrating the pipeline execution
-5. **PR description** with a brief explanation of your approach
+4. **PR description** with a brief explanation of your approach
 
-## Scaling Considerations
+## Performance Metrics
 
-Your solution should be designed with scalability in mind. Consider the following production scenario:
+In our production environment, we process data for thousands of creators daily, requiring efficient data extraction pipelines. While you don't need to process at that scale for this assignment, we'd like to understand your pipeline's performance characteristics.
 
-- **Scale:** Processing data for 100,000 creators
-- **Refresh frequency:** Daily updates
-- **Throughput requirement:** 1+ data entries extracted/transformed/validated per second
-- **Availability:** 24/7 uninterrupted operation
-
-### Scaling Requirements
-
-- **Document your extraction speed:** What throughput (records/second) can your solution achieve?
-- **Explain your scaling approach:** How have you designed your pipeline to handle the scale requirements?
-  - Consider: parallelization, batching, resource management, error recovery
-  - Discuss bottlenecks and how you've addressed or would address them
-  - Include any relevant metrics or benchmarks in your PR description
-
-While you don't need to process 100k records for this assignment, your code should demonstrate the architectural patterns and design decisions that would enable scaling to this level.
+**Please include in your PR description:**
+- **Links processed per minute:** What throughput (links/minute) can your solution achieve?
+- **Brief performance notes:** Any observations about bottlenecks or optimization opportunities you identified
