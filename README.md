@@ -144,11 +144,8 @@ The image uses Python 3.13 and installs dependencies with `uv`; the default comm
 
 | Area | Bottleneck / observation | Possible optimization |
 |------|---------------------------|------------------------|
-| **Extract** | Request delay is per-task inside the semaphore; bursts of N requests then delay. | Use a global rate limiter (e.g. token bucket) to cap requests/sec across all workers for smoother rate limiting. |
 | **Extract** | HTTP/1.1 only; one request per connection at a time. | Enable HTTP/2 on `httpx.AsyncClient(http2=True)` so multiple streams share one connection to en.wikipedia.org and reduce connection overhead. |
-| **Extract** | HTML parsing (BeautifulSoup + lxml) runs in the async task and is CPU-bound, so it can block the event loop and delay other fetches under high concurrency. | Run `parse_page(...)` in a thread pool via `asyncio.run_in_executor()` so the event loop stays responsive and I/O and CPU overlap better. |
 | **Extract** | Full response body (`resp.text`) is loaded into memory per page. | For very large pages or huge crawls, consider streaming or a cap on response size; for typical Wikipedia articles this is fine. |
 | **Transform** | `div#mw-content-text` is located multiple times (title, summary, links, content). | Resolve the content node once and pass it into the extractors to avoid repeated selector work. |
 | **Load** | All pages and links are held in memory until the load phase; at depth 2 with 25 links/page this can be hundreds of thousands of link rows. | For scale, stream results into the loader (e.g. a queue plus a writer coroutine/thread that inserts in chunks) to bound memory. |
 | **Load** | Inserts use chunked parameterized VALUES. | For very large link tables, DuckDB’s `INSERT ... FROM SELECT` over a PyArrow table or `COPY` from a temp file can be faster than many VALUES rounds. |
-| **End-to-end** | No per-stage timings in `PipelineReport`. | Add `crawl_duration_seconds` and `load_duration_seconds` to the report (and optionally log them) to see where time is spent. |
